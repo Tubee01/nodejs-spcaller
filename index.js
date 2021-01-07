@@ -30,8 +30,9 @@ app.post('/', function(req, res) {
     if (req.body.hasOwnProperty('params')) {
       for (const [key, value] of Object.entries(req.body['params'])) {
         // TODO: BOOLEAN
-        request.input(key, isNaN(value) || value === '' ? sql.VarChar : sql.Int, value);
+        request.input(key, isNaN(value) || value === '' ?(value === 'false' || value === 'true' ? sql.Bit : sql.VarChar ): sql.Int, value);
       }
+      console.log(request)
       request.execute(req.body['SP'], function(err1, recordsets, returnValue) {
         // ... error checks
         if (err1) {
@@ -46,6 +47,10 @@ app.post('/', function(req, res) {
             json[req.body['DS'] + y] = entry;
             ++y;
           })
+        }else if(recordsets['recordsets'].length >0){
+          json = recordsets['recordsets'][0]
+        }else{
+            return res.send('Empty');
         }
         var options = {
           compact: true,
