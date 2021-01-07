@@ -29,8 +29,7 @@ app.post('/', function(req, res) {
 
     if (req.body.hasOwnProperty('params')) {
       for (const [key, value] of Object.entries(req.body['params'])) {
-        // TODO: BOOLEAN
-        request.input(key, isNaN(value) || value === '' ?(value === 'false' || value === 'true' ? sql.Bit : sql.VarChar ): sql.Int, value);
+        request.input(key, isNaN(value) || value === '' ? (value === 'false' || value === 'true' ? sql.Bit : (Date.parse(value) !== NaN  && value !== '' ? sql.SmallDateTime :  sql.VarChar )): sql.Int, value);
       }
       console.log(request)
       request.execute(req.body['SP'], function(err1, recordsets, returnValue) {
@@ -57,7 +56,12 @@ app.post('/', function(req, res) {
           ignoreComment: true,
           spaces: 4
         };
-        var result = convert.json2xml(json, options);
+        var result;
+        if (req.body.hasOwnProperty('xml') && req.body['xml'] ==='true') {
+          result = convert.json2xml(json, options);
+        }else{
+          result = json;
+        }
 
         res.send(result);
 
